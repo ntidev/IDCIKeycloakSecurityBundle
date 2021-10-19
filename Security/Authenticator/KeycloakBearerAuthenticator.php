@@ -61,6 +61,7 @@ class KeycloakBearerAuthenticator extends AbstractGuardAuthenticator
     public function start(Request $request, AuthenticationException $authException = null)
     {
         $data = [
+            'code' => Response::HTTP_UNAUTHORIZED,
             'message' => 'Authentication Required',
         ];
 

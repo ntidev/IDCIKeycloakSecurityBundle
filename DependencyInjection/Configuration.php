@@ -10,14 +10,13 @@ class Configuration implements ConfigurationInterface
     public function getConfigTreeBuilder()
     {
         $treeBuilder = new TreeBuilder('nti_keycloak_security');
-        if (method_exists($treeBuilder, 'getRootNode')) {
-            $rootNode = $treeBuilder->getRootNode();
-        } else {
-            $rootNode = $treeBuilder->root('nti_keycloak_security');
-        }
 
-        $rootNode
+        $treeBuilder
+            ->getRootNode()
             ->children()
+                ->scalarNode('environment')
+                    ->defaultValue('dev')
+                ->end()
                 ->scalarNode('default_target_path')
                     ->isRequired()
                     ->cannotBeEmpty()
@@ -33,7 +32,15 @@ class Configuration implements ConfigurationInterface
                     ->isRequired()
                     ->cannotBeEmpty()
                 ->end()
+                ->scalarNode('admin_client_id')
+                    ->isRequired()
+                    ->cannotBeEmpty()
+                ->end()
                 ->scalarNode('client_id')
+                    ->isRequired()
+                    ->cannotBeEmpty()
+                ->end()
+                ->scalarNode('client_id_code')
                     ->isRequired()
                     ->cannotBeEmpty()
                 ->end()

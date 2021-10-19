@@ -18,9 +18,15 @@ class KeycloakSecurityExtension extends Extension implements PrependExtensionInt
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yaml');
 
-        $container->setParameter('nti_keycloak_security.config', $config);
-        $container->setParameter('nti_keycloak_security.default_target_path', $config['default_target_path']);
-        $container->setParameter('nti_keycloak_security.ssl_verification', $config['ssl_verification']);
+        $container->setParameter('environment', $config["environment"] ?? "dev");
+        $container->setParameter('keycloak_server_base_url', $config["server_url"]);
+        $container->setParameter('keycloak_realm', $config["realm"]);
+        $container->setParameter('keycloak_admin_client_id', $config["admin_client_id"]);
+        $container->setParameter('keycloak_client_id', $config["client_id"]);
+        $container->setParameter('keycloak_client_id_code', $config["client_id_code"]);
+        $container->setParameter('keycloak_client_secret', $config["client_secret"]);
+        $container->setParameter('keycloak_default_target_path', $config['default_target_path']);
+        $container->setParameter('keycloak_ssl_verification', $config['ssl_verification']);
     }
 
     public function prepend(ContainerBuilder $container)
