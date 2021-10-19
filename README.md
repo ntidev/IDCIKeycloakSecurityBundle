@@ -24,11 +24,15 @@ In case of you already have keycloak running locally on your machine or is runni
 ```yaml
 # config/packages/nti_keycloak_security.yaml
 nti_keycloak_security:
-    server_url: 'http://localhost:8080/auth' # your accessible keycloak url
-    # server_url: 'http://keycloak.example.com/auth' # example with public url
+    server_public_url: 'http://localhost:8080/auth'
+    server_private_url: 'http://localhost:8080/auth' # your accessible keycloak url
+    server_url: 'http://localhost:8080' # example with public url
     realm: 'MyRealm'
     client_id: 'my-client'
+    admin_client_id: 'my-admin-client'
+    client_id_code: 'my-client-id-code' # This code is the hash code code not the client id
     client_secret: '21d4cc5c-9ed6-4bf8-8528-6d659b66f216'
+    environment: 'dev|prod|test'
     default_target_path: 'home' # The route name you will be redirected to after sign in
 ```
 
@@ -41,12 +45,16 @@ Here is a stack example configuration for docker swarm:
 ```yaml
 # config/packages/nti_keycloak_security.yaml
 nti_keycloak_security:
-    server_public_url: 'http://keycloak.docker/auth' # your keycloak url accessible via your navigator
-    server_private_url: 'http://keycloak:8080/auth' # your keycloak container reference in the network
+    server_public_url: 'http://localhost:8080/auth'
+    server_private_url: 'http://localhost:8080/auth' # your accessible keycloak url
+    server_url: 'http://localhost:8080' # example with public url
     realm: 'MyRealm'
     client_id: 'my-client'
+    admin_client_id: 'my-admin-client'
+    client_id_code: 'my-client-id-code' # This code is the hash code code not the client id
     client_secret: '21d4cc5c-9ed6-4bf8-8528-6d659b66f216'
-    default_target_path: 'home' # The route you will be redirected to after sign in
+    environment: 'dev|prod|test'
+    default_target_path: 'home' # The route name you will be redirected to after sign in
 ```
 
 Make sure that your php container in the container is attached to a network with keycloak, otherwise it will not be able to resolve "http://keycloak:8080/auth" and the public_server_url must be accessible through the port 80 because keycloak verify the issuer.
