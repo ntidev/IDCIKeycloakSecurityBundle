@@ -2,6 +2,7 @@
 
 namespace NTI\KeycloakSecurityBundle\Security\User;
 
+use Doctrine\ORM\EntityManagerInterface;
 use NTI\KeycloakSecurityBundle\Provider\Keycloak;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Client\OAuth2Client;
@@ -23,10 +24,14 @@ class KeycloakUserProvider extends OAuthUserProvider
      */
     protected $container;
 
+    /** @var EntityManagerInterface */
+    protected $em;
+
     public function __construct(ClientRegistry $clientRegistry, ContainerInterface $container)
     {
         $this->clientRegistry = $clientRegistry;
         $this->container = $container;
+        $this->em = $this->container->get('doctrine')->getManager();
     }
 
     /**
@@ -51,12 +56,15 @@ class KeycloakUserProvider extends OAuthUserProvider
             function ($role) {
                 return strtoupper($role);
             },
-            $keycloakUser->getRoles($this->getKeycloakClient()->getOAuth2Provider()->getClientId())
+            $keycloakUser->getRoles($this->getKeycloakClient()->getOAuth2Provider()->getClientId()) ?? []
         );
-
+        
         // Get local user
-        $localUser = $this->container->has('app.user') ? $this->container->get('app.user')->findOneBy(array("email" => $keycloakUser->getEmail())) : null;
-
+        $localUser = null;
+        if($this->em && $repo = $this->container->getParameter("user_class",null)){
+            $localUser = $this->em->getRepository($repo)->findOneBy(array("email" => $keycloakUser->getEmail())) ?? null;
+        }
+        
         return new KeycloakUser(
             $keycloakUser->getPreferredUsername(),
             $roles,

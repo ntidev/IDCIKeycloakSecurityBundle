@@ -2,6 +2,7 @@
 
 namespace NTI\KeycloakSecurityBundle\Security\User;
 
+use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Client;
 use NTI\KeycloakSecurityBundle\Provider\Keycloak;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
@@ -30,11 +31,15 @@ class KeycloakBearerUserProvider extends OAuthUserProvider
      */
     protected $container;
 
+    /** @var EntityManagerInterface */
+    protected $em;
+
     public function __construct(ClientRegistry $clientRegistry, $sslVerification, ContainerInterface $container)
     {
         $this->clientRegistry = $clientRegistry;
         $this->sslVerification = $sslVerification;
         $this->container = $container;
+        $this->em = $this->container->get('doctrine')->getManager();
     }
 
     /**
@@ -86,9 +91,12 @@ class KeycloakBearerUserProvider extends OAuthUserProvider
                 $roles = array_keys($rolesTmp);
             }
         }
-
+        
         // Get local user
-        $localUser = $this->container->has('app.user') ? $this->container->get('app.user')->findOneBy(array("email" => $jwt['email'])) : null;
+        $localUser = null;
+        if($this->em && $repo = $this->container->getParameter("user_class",null)){
+            $localUser = $this->em->getRepository($repo)->findOneBy(array("email" => $jwt['email'])) ?? null;
+        }
 
         return new KeycloakBearerUser(
             $jwt['email'],

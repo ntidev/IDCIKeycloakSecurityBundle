@@ -14,8 +14,9 @@ class Configuration implements ConfigurationInterface
         $treeBuilder
             ->getRootNode()
             ->children()
-                ->scalarNode('environment')
-                    ->defaultValue('dev')
+                ->scalarNode('user_class')
+                    ->isRequired()
+                    ->cannotBeEmpty()
                 ->end()
                 ->scalarNode('default_target_path')
                     ->isRequired()
@@ -47,6 +48,9 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('client_secret')
                     ->isRequired()
                     ->cannotBeEmpty()
+                ->end()
+                ->scalarNode('environment')
+                    ->defaultValue('dev')
                 ->end()
             ->end()
         ;

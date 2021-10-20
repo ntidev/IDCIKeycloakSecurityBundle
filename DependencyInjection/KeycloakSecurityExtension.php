@@ -7,6 +7,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
 class KeycloakSecurityExtension extends Extension implements PrependExtensionInterface
 {
@@ -17,6 +18,14 @@ class KeycloakSecurityExtension extends Extension implements PrependExtensionInt
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yaml');
+
+        if (!isset($config["server_url"]) || empty($config['user_class'])) {
+            $e = new InvalidConfigurationException('Add "user_class" to "nti_keycloak_security.yaml".');
+            $e->setPath('nti_keycloak_security');
+            throw $e;
+        }
+
+        $container->setParameter('user_class', $config["user_class"] ?? null);
 
         $container->setParameter('environment', $config["environment"] ?? "dev");
         $container->setParameter('keycloak_server_base_url', $config["server_url"]);
