@@ -155,8 +155,17 @@ class KeycloakAdminUserService extends KeycloakSecurityService {
     public function updateUserGroup($id, $groupId, $data) {
         $url = $this->basePath.self::UPDATE_GROUP_USER;
         $url = str_replace("{id}", $id, $url);
-        $url = str_replace("{groupId}", $id, $groupId);
+        $url = str_replace("{groupId}", $groupId, $url);
         $result = $this->restPut($url, $data);
+        $response = json_decode($result, true);
+        return $response;
+    }
+
+    public function removeUserFromGroup($id, $groupId) {
+        $url = $this->basePath.self::UPDATE_GROUP_USER;
+        $url = str_replace("{id}", $id, $url);
+        $url = str_replace("{groupId}", $groupId, $url);
+        $result = $this->restDelete($url);
         $response = json_decode($result, true);
         return $response;
     }
