@@ -76,6 +76,40 @@ class KeycloakAdminUserService extends KeycloakSecurityService {
         }
     }
 
+    public function getFromId($keycloakId, $roles = false) {
+        $clientId = $this->container->getParameter(self::KEYCLOAK_CLIENT_ID);
+
+        try{
+            // Load user with Id
+            $res = $this->getAll(array('id' => $keycloakId));
+
+            if(!isset($res[0])) return null;
+
+            $userData = $this->attributesDecode($res[0]);
+
+            if($roles == true){
+                // Parse denied roles
+                $deniedRoles = [];
+                if(isset($userData['attributes']) && isset($userData['attributes']['denied_roles'])){
+                    $deniedRoles = $deniedRoles[$clientId];
+                }
+
+                // Load roles and remove denied roles
+                $roles = $this->getRolesComposite($userData['id']);
+                $roles = array_map(function ($role) { return $role['name']; }, $roles );
+
+                $rolesTmp = array(); // Remove denied roles
+                foreach($roles as $val) $rolesTmp[$val] = 1;
+                foreach($deniedRoles as $val) unset($rolesTmp[$val]);
+                $userData['roles'] = array_keys($rolesTmp);
+            }
+
+            return $userData;
+        }catch (\Exception $ex){
+            return null;
+        }
+    }
+
     public function count() {
         $url = $this->basePath.self::COUNT_URL;
         $result = $this->restGet($url);
